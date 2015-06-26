@@ -1,10 +1,9 @@
 class Zombie
-  attr_accessor :name, :username, :password, :image, :location, :bio, :created_at, :tweets, :next_tweet_id, :stalkers, :prey
+  attr_accessor :name, :username, :password, :image, :location, :bio, :created_at, :tweets, :stalkers, :prey
 
   @@instances = []
 
   def initialize
-    self.next_tweet_id = 0
     self.tweets = []
     self.stalkers = []
     self.prey = []
@@ -28,14 +27,12 @@ class Zombie
     t.zombie = self
     t.content = content
     t.location = location
-    t.tweet_id = self.next_tweet_id
-    self.next_tweet_id += 1
     self.tweets.push(t)
     t
   end
 
   def delete_tweet(tweet_id)
-    self.tweets.delete_if { | tweet | tweet.tweet_id == tweet_id }
+    self.tweets.delete_if { | tweet | tweet.unique_id == tweet_id }
   end
 
   def add_prey(username)

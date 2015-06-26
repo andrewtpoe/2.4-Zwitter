@@ -7,6 +7,7 @@ class Zombie
     self.tweets = []
     self.stalkers = []
     self.prey = []
+    self.image = "http://vignette3.wikia.nocookie.net/lego/images/8/81/Zombie_Groom.png/revision/latest?cb=20120823164249"
     @@instances << self
   end
 
@@ -37,8 +38,10 @@ class Zombie
 
   def add_prey(username)
     zombie = Zombie.find_zombie(username)
-    self.prey.push(zombie)
-    zombie.stalkers.push(self)
+    if zombie
+      self.prey.push(zombie)
+      zombie.stalkers.push(self)
+    end
   end
 
   # Should delete the username passed in from the prey list,
@@ -50,5 +53,18 @@ class Zombie
       end
     end
   end
+
+  def add_fav(tweet_id)
+    tweet = Tweet.find_tweet(tweet_id)
+    tweet.add_to_favs(self)
+  end
+
+  def delete_fav(tweet_id)
+    tweet = Tweet.find_tweet(tweet_id)
+    tweet.favs.delete_if do | fav |
+      fav.zombie.username == @username
+    end
+  end
+
 
 end

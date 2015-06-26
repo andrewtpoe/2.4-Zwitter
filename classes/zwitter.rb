@@ -20,8 +20,10 @@ class Zwitter
     if zombie
       tweets = zombie.tweets
       tweets.reverse_each do | tweet |
-        puts "Content: #{tweet.content}"
-        puts "Tweet Id: #{tweet.unique_id}"
+        puts "Content: #{tweet.content} "
+        print "Author: #{tweet.zombie.username} "
+        print "Tweet Id: #{tweet.unique_id} "
+        print "Favs: #{tweet.favs.length} "
         puts ""
       end
     end
@@ -40,9 +42,10 @@ class Zwitter
       tweet_feed.sort_by! { | tweet | tweet.unique_id }
       puts "YOUR ZWITTER FEED:"
       tweet_feed.reverse_each do | tweet |
-        puts "Content: #{tweet.content}"
+        puts "Content: #{tweet.content} "
         print "Author: #{tweet.zombie.username} "
-        print "Tweet Id: #{tweet.unique_id}"
+        print "Tweet Id: #{tweet.unique_id} "
+        print "Favs: #{tweet.favs.length} "
         puts ""
       end
     end

@@ -1,7 +1,7 @@
 class Tweet
   attr_accessor :content, :location, :created_at, :zombie, :unique_id, :favs
 
-  @@tweet_id = 0
+  @@tweet_id = 1
   @@all_tweets = []
 
   def initialize

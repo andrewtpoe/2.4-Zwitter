@@ -1,14 +1,19 @@
 class Zombie
-  attr_accessor :name, :username, :password, :image, :location, :bio, :created_at, :tweets, :stalkers, :prey
+  attr_accessor :name, :username, :password, :image, :location, :bio, :created_at, :tweets, :stalkers, :prey, :logged_in
 
   @@instances = []
 
   def initialize
+    self.logged_in = false
     self.tweets = []
     self.stalkers = []
     self.prey = []
     self.image = "http://vignette3.wikia.nocookie.net/lego/images/8/81/Zombie_Groom.png/revision/latest?cb=20120823164249"
     @@instances << self
+  end
+
+  def self.instances()
+    @@instances
   end
 
   # Create class method that accepts username argument.
@@ -30,6 +35,12 @@ class Zombie
     t.location = location
     self.tweets.push(t)
     t
+  end
+
+  def return_tweet(tweet_id)
+    return_tweet = nil
+    self.tweets.each { | tweet | return_tweet = tweet if tweet.unique_id == tweet_id }
+    return_tweet
   end
 
   def delete_tweet(tweet_id)

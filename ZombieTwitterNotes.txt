@@ -1,0 +1,51 @@
+# Zombie Twitter
+
+# app.rb - calls on all other files
+# - zombie.rb
+
+# --- Create Read Update Destroy: C R U D
+# --- Create and destroy for each property of class
+# --- test everything
+
+# Zombies (create, delete, feed_of_tweets, followers, following)
+# - image: default is lego zombie
+# - name
+# - password
+# - username
+# - location
+# - bio
+# - have tweets
+# - have followers
+# - have following
+# - have favorites
+# - has feed
+
+# Tweets (create, delete, view_all, sort_by_, read/view, number of favorites)
+# - zombie author
+# - content
+# - created at 
+# - location
+# - attachment 
+# - re-tweets
+# --- can delete your copy of tweet without deleting original
+# --- re-tweeted from
+# --- can add comment to re-tweet
+# - favs
+
+# Following
+# - create record of following.
+# - follower
+# - followed
+# - timestamp
+
+# Favorites - OPTIONAL
+# - tweet
+# - who did it
+# - when created
+
+Added Features:
+# - Block
+# - Search
+# - verify if want to delete & error msg for not delete
+# - Archive
+# - display in feed is user has favored tweet

@@ -1,9 +1,20 @@
 ZOMBIE TWITTER!
 
-This commit is for dev purposes only and the program is not ready to run. It is primarily pushed for my co-conspirators @Meeeeeesh and @Kennethjk3.
+This project is a team effort. The co-conspirators include myself, @Meeeeeesh, and @Kennethjk3. We were tasked with building a Twitter like program for Zombies to use in the terminal.
 
-I structured the files we made earlier today a little differently so it should be easier to work with and more inline with how the finished program should be structured. All program classes should go in the 'classes' folder, tests in the 'tests' folder.
+This commit is a nearly finished beta version, although some minor revisions and additional test files will likely be uploaded. To use our Zwitter program, just unzip the folder on your desktop, navigate to that folder in your terminal, and type in:
 
-Calling < ruby app.rb > works exactly the same as before.
+    ruby app.rb
 
-Calling < ruby autotest.rb > will load and run the program tests we were working on.
+To simplify populating Zwitter, a few default profiles, tweets, and relationships have been created. Feel free to log in as one of these, or create your own Zombie profile. Here are the current logins:
+
+    Username: meesh
+    Password: tibby
+
+    Username: poe
+    Password: secret
+
+    Username: ken
+    Password: grains
+
+Enjoy the brains...

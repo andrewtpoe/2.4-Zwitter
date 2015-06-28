@@ -1,5 +1,5 @@
 require 'minitest/autorun'
-require_relative '../app.rb'
+require_relative '../classes/zombie.rb'
 
 class TestZombie < MiniTest::Test
   def setup

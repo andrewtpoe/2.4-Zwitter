@@ -1,12 +1,15 @@
 class Zwitter
-  attr_accessor :meesh, :poe, :ken
+  attr_accessor :meesh, :poe, :ken, :show_user_menu
 
+  MAIN_MENU = ['1: Login', '2: Sign up for Zwitter', '3: Exit']
   USER_MENU = ['1: Create Tweet', '2: View Tweet Feed', '3: View My Tweets', '4: Browse Zombies', '5: View My Profile', '6: Logout']
   INTERACT_MENU = ['1: Create Tweet', '2: Retweet', '3: Delete Tweet', '4: Fave Tweet', '5: Unfave Tweet', '6: User Menu' ]
   LURKER_MENU = ['1: View All Zombies', '2: View My Prey', '3: Follow New Prey', '4: Unfollow Prey', '5: View My Stalkers', '6: User Menu' ]
   PROFILE_MENU = ['1: Edit Username', '2: Edit Password', '3: Edit Image', '4: Edit Location', '5: Edit Bio', '6: User Menu']
 
+  # Run at startup
   def initialize
+    # Create some default zombies...
     @meesh = Zombie.new
     @meesh.username = "meesh"
     @meesh.password = "tibby"
@@ -14,7 +17,6 @@ class Zwitter
     @poe = Zombie.new
     @poe.username = "poe"
     @poe.password = "secret"
-    @poe.logged_in = true
 
     @ken = Zombie.new
     @ken.username = "ken"
@@ -23,6 +25,7 @@ class Zwitter
     @ken.add_prey("poe")
     @poe.add_prey("meesh")
 
+    # Populate Zwitter with some default tweets
     @meesh.create_tweet(content: "gwains not bwains")
     @poe.create_tweet(content: "I want breakfast")
     @ken.create_tweet(content: "My car got booted")
@@ -30,11 +33,70 @@ class Zwitter
     @meesh.create_tweet(content: "Tibby is my fav")
     @ken.create_tweet(content: "Yeah, i'm Italian.")
     @meesh.create_tweet(content: "word")
+    @poe.create_tweet(content: "Coding turned me into a zombie.")
+    @meesh.create_tweet(content: "That's what she said")
+    @ken.create_tweet(content: "testing time... yay...")
 
+    # Display the main menu
+    show_main_menu
   end
 
+  # Displays and operates the main menu
+  def show_main_menu
+    main_menu_sel = true
+    error = {}
+    while main_menu_sel
+      puts "Welcome to Zwitter! "
+      puts "Login to learn the latest on all things bwaaains!"
+      puts ""
+      main_menu_sel = get_menu_selection(MAIN_MENU)
+      case main_menu_sel
+      # zombie login
+      when 1
+        @show_user_menu = false
+        zombie = nil
+        login = get_zombie_login()
+        zombie = get_zombie(login)
+        while @show_user_menu
+          user_menu(zombie)
+          @show_user_menu = false
+        end
+      # Join Zwitter
+      when 2
+        puts "Join Zwitter today"
+        puts ""
+        zombie = Zombie.new
+        # Create username
+        print "CREATE USERNAME: "
+        zombie_name = gets.chomp
+        zombie.username = zombie_name
+        puts ""
+        # 2: Create Password
+        print "CREATE PASSWORD: "
+        pass = gets.chomp
+        zombie.password = pass
+        puts ""
+        @show_user_menu = true
+        while @show_user_menu
+          user_menu(zombie)
+          @show_user_menu = false
+        end
+      when 3
+        puts "Happy hunting! Goodbye."
+        puts ''
+        main_menu_sel = false
+      else
+        display_error()
+        main_menu_sel = false
+        error[:error] = "The world is ending. Drop this device and enjoy your last brain!"
+      end
+    end
+  end
+
+  # Displays and operates the user menu
   def user_menu(zombie)
-    while zombie.logged_in
+    user_men_sel = true
+    while user_men_sel
       puts "LOGGED IN: #{zombie.username}"
       puts "USER MENU:"
       puts ""
@@ -43,7 +105,7 @@ class Zwitter
       case user_men_sel
       # 1: Create Tweet
       when 1
-      content = get_input("What's on your mind?")
+      content = get_input("What's on your mind (besides brains)?")
       tweet = zombie.create_tweet(content: content)
       display_tweet_feed(zombie)
       interact_menu(zombie)
@@ -65,11 +127,15 @@ class Zwitter
         profile_menu(zombie)
       # 6: Logout
       else
-        zombie.logged_in = false
+        puts "LOGGING OUT"
+        puts ""
+        user_men_sel = false
+#        show_main_menu()
       end
     end
   end
 
+  # Displays and operates the interaction menu
   def interact_menu(zombie)
     interact_men_sel = true
     while interact_men_sel
@@ -79,11 +145,25 @@ class Zwitter
       case interact_men_sel
       # 1: Create Tweet
       when 1
-        content = get_input("What's on your mind?")
+        content = get_input("What's on your mind (besides brains)?")
         tweet = zombie.create_tweet(content: content)
         display_tweet_feed(zombie)
       # 2: Retweet
       when 2
+        display_tweet_feed(zombie)
+        print "TWEET ID TO RETWEET: "
+        tweet_id = gets.chomp.to_i
+        puts ""
+        tweet_to_retweet = Tweet.find_tweet(tweet_id)
+        if tweet_to_retweet
+          retweet = zombie.retweet(tweet_id)
+          puts "RETWEETED:"
+          puts ""
+          show_single_tweet(zombie, retweet)
+        else
+          puts "NO TWEET EXISTS WITH THIS ID"
+          puts ""
+        end
       # 3: Delete Tweet
       when 3
         display_tweets(zombie)
@@ -154,15 +234,7 @@ class Zwitter
     end
   end
 
-  def view_all_other_zombies(zombie)
-    Zombie.instances.each_with_index do | zom, index |
-      unless zom.username == zombie.username
-        puts "ZOMBIE #{index + 1}: #{zom.username}"
-      end
-    end
-    puts ""
-  end
-
+  # Displays and operates the lurker menu
   def lurker_menu(zombie)
     lurker_men_sel = true
     while lurker_men_sel
@@ -232,79 +304,91 @@ class Zwitter
     end
   end
 
-    def display_profile(zombie)
-      puts "ZOMBIE PROFILE FOR: #{zombie.username}"
+  # Displays and operates the profile menu
+  def profile_menu(zombie)
+    profile_men_sel = true
+    while profile_men_sel
+      puts "PROFILE MENU:"
       puts ""
-      puts "USERNAME: #{zombie.username}"
-      puts "PASSWORD: #{zombie.password}"
-      puts "IMAGE: #{zombie.image}"
-      puts "LOCATION: #{zombie.location}"
-      puts "BIO: #{zombie.bio}"
-      puts "STALKING:"
-      zombie.prey.each { | target | puts " #{target.username}" }
-      puts "STALKED BY:"
-      zombie.stalkers.each { | lurker | puts "  #{lurker.username}"}
-      puts ""
-    end
-
-    def profile_menu(zombie)
-      profile_men_sel = true
-      while profile_men_sel
-        puts "PROFILE MENU:"
+      profile_men_sel = get_menu_selection(PROFILE_MENU)
+      case profile_men_sel
+      # 1: Edit Username
+      when 1
+        print "ENTER YOUR NEW USERNAME: "
+        new_name = gets.chomp
         puts ""
-        profile_men_sel = get_menu_selection(PROFILE_MENU)
-        case profile_men_sel
-        # 1: Edit Username
-        when 1
-          print "ENTER YOUR NEW USERNAME: "
-          new_name = gets.chomp
-          puts ""
-          zombie.username = new_name
-          puts "UPDATED USERNAME"
-          puts ""
-          display_profile(zombie)
-        # 2: Edit Password
-        when 2
-          print "ENTER YOUR NEW PASSWORD: "
-          new_pass = gets.chomp
-          puts ""
-          zombie.password = new_pass
-          puts "UPDATED PASSWORD"
-          puts ""
-          display_profile(zombie)
-        # 3: Edit Image
-        when 3
-          print "ENTER YOUR NEW IMAGE URL: "
-          new_img = gets.chomp
-          puts ""
-          zombie.image = new_img
-          puts "UPDATED IMAGE"
-          puts ""
-          display_profile(zombie)
-        # 4: Edit Location
-        when 4
-          print "ENTER YOUR NEW LOCATION: "
-          new_loc = gets.chomp
-          puts ""
-          zombie.loc = new_loc
-          puts "UPDATED LOCATION"
-          puts ""
-          display_profile(zombie)
-        # 5: Edit Bio
-        when 5
-          print "ENTER YOUR NEW BIO: "
-          new_bio = gets.chomp
-          puts ""
-          zombie.bio = new_bio
-          puts "UPDATED USERNAME"
-          puts ""
-          display_profile(zombie)
-        # 6: User Menu
-        else
-          profile_men_sel = false
-        end
+        zombie.username = new_name
+        puts "UPDATED USERNAME"
+        puts ""
+        display_profile(zombie)
+      # 2: Edit Password
+      when 2
+        print "ENTER YOUR NEW PASSWORD: "
+        new_pass = gets.chomp
+        puts ""
+        zombie.password = new_pass
+        puts "UPDATED PASSWORD"
+        puts ""
+        display_profile(zombie)
+      # 3: Edit Image
+      when 3
+        print "ENTER YOUR NEW IMAGE URL: "
+        new_img = gets.chomp
+        puts ""
+        zombie.image = new_img
+        puts "UPDATED IMAGE"
+        puts ""
+        display_profile(zombie)
+      # 4: Edit Location
+      when 4
+        print "ENTER YOUR NEW LOCATION: "
+        new_loc = gets.chomp
+        puts ""
+        zombie.loc = new_loc
+        puts "UPDATED LOCATION"
+        puts ""
+        display_profile(zombie)
+      # 5: Edit Bio
+      when 5
+        print "ENTER YOUR NEW BIO: "
+        new_bio = gets.chomp
+        puts ""
+        zombie.bio = new_bio
+        puts "UPDATED USERNAME"
+        puts ""
+        display_profile(zombie)
+      # 6: User Menu
+      else
+        profile_men_sel = false
       end
     end
+  end
+
+  # Displays all zombies except the zombie currently logged in
+  def view_all_other_zombies(zombie)
+    Zombie.instances.each_with_index do | zom, index |
+      unless zom.username == zombie.username
+        puts "ZOMBIE #{index + 1}: #{zom.username}"
+      end
+    end
+    puts ""
+  end
+
+  # Displays this zombie's user profile
+  def display_profile(zombie)
+    puts "ZOMBIE PROFILE FOR: #{zombie.username}"
+    puts ""
+    puts "USERNAME: #{zombie.username}"
+    puts "PASSWORD: #{zombie.password}"
+    puts "IMAGE: #{zombie.image}"
+    puts "LOCATION: #{zombie.location}"
+    puts "BIO: #{zombie.bio}"
+    puts "STALKING:"
+    zombie.prey.each { | target | puts "  #{target.username}" }
+    puts "STALKED BY:"
+    zombie.stalkers.each { | lurker | puts "  #{lurker.username}"}
+    puts ""
+  end
 
   # This method displays a menu and verifies that the
   # input collected and returned is a valid option.
@@ -321,6 +405,32 @@ class Zwitter
     men_sel
   end
 
+  # Asks for login information, returns a hash
+  def get_zombie_login
+    username = get_input('Please enter your username')
+    password = get_input('Please enter your password')
+    login = { username: username, password: password }
+    login
+  end
+
+  # Finds zombie based on login hash, returns verified zombie
+  def get_zombie(login)
+    matching_zombie = false
+    Zombie.instances.each do | zombie |
+      if zombie.username == login[:username] && zombie.password == login[:password]
+        @show_user_menu = true
+        matching_zombie = zombie
+        puts "Your account has been verified."
+        puts ''
+      end
+    end
+    unless matching_zombie
+      puts "Start over."
+      puts ''
+    end
+    matching_zombie
+  end
+
   # This method displays input prompt and returns the value input as a string.
   # Loops until input is given.
   def get_input(prompt)
@@ -334,25 +444,20 @@ class Zwitter
     var
   end
 
+  # Displays this zombies tweets
   def display_tweets(zombie)
-    # Changed this block of code. Now passing in a specific zombie instead of username
-    # therefore we don't need to find the zombie
-    # zombie = Zombie.find_zombie(username)
     if zombie
       tweets = zombie.tweets
       puts "YOUR TWEETS:"
       puts ""
-#      tweets.reverse_each do | tweet |
       tweets.each do | tweet |
         show_single_tweet(zombie, tweet)
       end
     end
   end
 
+  # Displays the tweet feed for this zombie
   def display_tweet_feed(zombie)
-    # Changed this block of code. Now passing in a specific zombie instead of username
-    # therefore we don't need to find the zombie
-    # zombie = Zombie.find_zombie(username)
     if zombie
       tweet_feed = []
       user_tweets = zombie.tweets
@@ -364,18 +469,19 @@ class Zwitter
       tweet_feed.sort_by! { | tweet | tweet.unique_id }
       puts "YOUR ZWITTER FEED:"
       puts ""
-#      tweet_feed.reverse_each do | tweet |
       tweet_feed.each do | tweet |
         show_single_tweet(zombie, tweet)
       end
     end
   end
 
+  # Outputs to the screen the content and useful information about a single tweet
   def show_single_tweet(zombie, tweet)
     puts "Content: #{tweet.content} "
     print "Author: #{tweet.zombie.username} | "
     print "Tweet Id: #{tweet.unique_id} | "
-    print "Favs: #{tweet.favs.length} "
+    print "Favs: #{tweet.favs.length} | "
+    print "Retweets: #{tweet.retweets} "
     already_favd = false
     tweet.favs.each do | fav |
       if fav.zombie.username == zombie.username
@@ -388,10 +494,8 @@ class Zwitter
     puts "\n\n"
   end
 
+  # Displays the prey for this zombie
   def display_prey(zombie)
-    # Changed this block of code. Now passing in a specific zombie instead of username
-    # therefore we don't need to find the zombie
-    # zombie = Zombie.find_zombie(username)
     if zombie
       prey = zombie.prey
       puts "YOUR PREY:"
@@ -403,10 +507,8 @@ class Zwitter
     end
   end
 
+  # Displays the stalkers for this zombie.
   def show_stalkers(zombie)
-    # Changed this block of code. Now passing in a specific zombie instead of username
-    # therefore we don't need to find the zombie
-    # zombie = Zombie.find_zombie(username)
     if zombie
       stalkers = zombie.stalkers
       puts "YOUR STALKERS:"

@@ -354,7 +354,7 @@ class Zwitter
         print "ENTER YOUR NEW LOCATION: "
         new_loc = gets.chomp
         puts ""
-        zombie.loc = new_loc
+        zombie.location = new_loc
         puts "UPDATED LOCATION"
         puts ""
         display_profile(zombie)

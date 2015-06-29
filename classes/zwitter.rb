@@ -36,6 +36,7 @@ class Zwitter
     @poe.create_tweet(content: "Coding turned me into a zombie.")
     @meesh.create_tweet(content: "That's what she said")
     @ken.create_tweet(content: "testing time... yay...")
+    @ken.create_tweet(content: "Favorit flavor: couch potato")
 
     # Display the main menu
     show_main_menu
@@ -61,26 +62,34 @@ class Zwitter
           user_menu(zombie)
           @show_user_menu = false
         end
-      # Join Zwitter
-      when 2
-        puts "Join Zwitter today"
-        puts ""
-        zombie = Zombie.new
-        # Create username
-        print "CREATE USERNAME: "
-        zombie_name = gets.chomp
-        zombie.username = zombie_name
-        puts ""
-        # 2: Create Password
-        print "CREATE PASSWORD: "
-        pass = gets.chomp
-        zombie.password = pass
-        puts ""
-        @show_user_menu = true
-        while @show_user_menu
-          user_menu(zombie)
-          @show_user_menu = false
-        end
+        # Join Zwitter
+        when 2
+          puts "Join Zwitter today"
+          puts ""
+          zombie = Zombie.new
+          # Create username
+          zombie_exists = nil
+          unless zombie_exists
+            zombie_name = get_input("CREATE USERNAME")
+            # print "CREATE USERNAME: "
+            # zombie_name = gets.chomp
+            zombie_exists = Zombie.find_zombie(zombie_name)
+            if zombie_exists
+              puts "This Zombie is already Roaming"
+              puts ""
+            else
+              zombie.username = zombie_name
+              pass = get_input("CREATE PASSWORD")
+              # print "CREATE PASSWORD: "
+              # pass = gets.chomp
+              zombie.password = pass
+              @show_user_menu = true
+              while @show_user_menu
+                user_menu(zombie)
+                @show_user_menu = false
+              end
+            end
+          end
       when 3
         puts "Happy hunting! Goodbye."
         puts ''
@@ -95,6 +104,7 @@ class Zwitter
 
   # Displays and operates the user menu
   def user_menu(zombie)
+    display_tweet_feed(zombie)
     user_men_sel = true
     while user_men_sel
       puts "LOGGED IN: #{zombie.username}"
@@ -480,8 +490,8 @@ class Zwitter
     puts "Content: #{tweet.content} "
     print "Author: #{tweet.zombie.username} | "
     print "Tweet Id: #{tweet.unique_id} | "
-    print "Favs: #{tweet.favs.length} | "
-    print "Retweets: #{tweet.retweets} "
+    print "Retweets: #{tweet.retweets} | "
+    print "Favs: #{tweet.favs.length} "
     already_favd = false
     tweet.favs.each do | fav |
       if fav.zombie.username == zombie.username

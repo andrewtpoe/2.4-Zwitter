@@ -1,7 +1,7 @@
 class Tweet
   attr_accessor :content, :location, :created_at,
-                        :zombie, :unique_id, :favs, :retweets,
-                        :original_tweet, :retweeted
+                :zombie, :unique_id, :favs, :retweets,
+                :original_tweet, :retweeted
 
   # Class level attributes
   @@tweet_id = 1
